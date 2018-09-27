@@ -23,6 +23,7 @@ pipeline {
                  dir('environments/terraform/b2c-challenge/launch'){
                     sh 'export AWS_ACCESS_KEY_ID=$TERRAFORM_ACCESS_KEY_CREDS_PSW'
                     sh 'export AWS_SECRET_ACCESS_KEY=$TERRAFORM_SECRET_ACCESS_KEY_CREDS_PSW'
+                    sh 'export REGION=us-east-1'
                     sh 'terraform init'
                  }
         	}
@@ -30,7 +31,6 @@ pipeline {
         stage('get'){
         	steps{
                  dir('environments/terraform/b2c-challenge/launch'){
-                    sh 'ls'
                     sh 'terraform get'
                  }
         	}
@@ -42,7 +42,6 @@ pipeline {
             }
         	steps{
                  dir('environments/terraform/b2c-challenge/launch'){
-                    sh 'ls'
                     sh 'terraform plan -out "out.terraform" \
                     -var "access_key=$TERRAFORM_ACCESS_KEY_CREDS_PSW" \
                     -var "secret_key=$TERRAFORM_SECRET_ACCESS_KEY_CREDS_PSW" \
