@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker { image 'mdv-docdevl01:18444/jenkins-identity-api-agent:latest' }
+        docker { image 'mdv-docdevl01:18444/terraform:0.11.8' }
     }
    
     stages {
@@ -12,7 +12,6 @@ pipeline {
             //removing old code if there is any, initializing new local repo and cloning into it.
             steps{
                 sh 'rm -rf environments && git init && git clone https://$BITBUCKET_COMMON_CREDS_USR:$BITBUCKET_COMMON_CREDS_PSW@bitbucket.org/mapfre-usa-b2c/environments.git'   
-                }
             }
         }
         stage('test'){

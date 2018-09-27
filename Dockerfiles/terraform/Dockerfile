@@ -4,6 +4,9 @@ FROM alpine:3.8
 #Set Maintainer
 LABEL maintainer "adatla@mapfreusa.com"
 
+#Install git
+RUN apk update && apk add --no-cache bash git openssh
+
 ENV TERRAFORM_VERSION=0.11.8
 
 # Download and install terraform
