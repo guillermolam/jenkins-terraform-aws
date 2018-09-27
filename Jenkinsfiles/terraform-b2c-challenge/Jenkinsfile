@@ -14,15 +14,38 @@ pipeline {
                 sh 'rm -rf environments && git init && git clone https://$BITBUCKET_COMMON_CREDS_USR:$BITBUCKET_COMMON_CREDS_PSW@bitbucket.org/mapfre-usa-b2c/environments.git'   
             }
         }
-        stage('test'){
+        stage('init'){
         	steps{
                  dir('environments/terraform/b2c-challenge/launch'){
                     sh 'ls'
-                    sh 'terraform -version'
+                    sh 'terraform init'
                  }
         	}
         }
-	
+        stage('get'){
+        	steps{
+                 dir('environments/terraform/b2c-challenge/launch'){
+                    sh 'ls'
+                    sh 'terraform get'
+                 }
+        	}
+        }
+        stage('plan'){
+            environment {
+                TERRAFORM_ACCESS_KEY_CREDS = credentials('aws_terraform_access_key')
+                TERRAFORM_SECRET_ACCESS_KEY_CREDS = credentials('terraform_secret_access_key')
+            }
+        	steps{
+                 dir('environments/terraform/b2c-challenge/launch'){
+                    sh 'ls'
+                    sh 'terraform plan -out "out.terraform" \
+                    -var "access_key=TERRAFORM_ACCESS_KEY_CREDS_PSW" \
+                    -var "secret_key=TERRAFORM_SECRET_ACCESS_KEY_CREDS_PSW" \
+                    -var "eks_endpoint=https://DE7FBA3995355F0228B7C020565A6A1F.sk1.us-east-1.eks.amazonaws.com" \
+                    -var-file=../input_variables.tf'
+                 }
+        	}
+        }	
     }
 }
 
