@@ -1,0 +1,31 @@
+pipeline {
+    agent {
+        docker { image 'mdv-docdevl01:18444/jenkins-identity-api-agent:latest' }
+    }
+   
+    stages {
+        // cloning code into the container
+        stage('clone'){
+         environment {
+                BITBUCKET_COMMON_CREDS = credentials('anj-bitbucket')
+            }
+            //removing old code if there is any, initializing new local repo and cloning into it.
+            steps{
+                sh 'rm -rf environments && git init && git clone https://$BITBUCKET_COMMON_CREDS_USR:$BITBUCKET_COMMON_CREDS_PSW@bitbucket.org/mapfre-usa-b2c/environments.git'   
+                }
+            }
+        }
+        stage('test'){
+        	steps{
+        		sh 'ls'
+        	}
+            dir('terraform/b2c-challenge/launch/'){
+                steps{
+                    sh 'ls'
+                }
+            }
+        }
+	
+    }
+}
+
