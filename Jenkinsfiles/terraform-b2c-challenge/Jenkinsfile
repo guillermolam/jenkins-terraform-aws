@@ -15,6 +15,7 @@ pipeline {
             }
         }
         stage('test'){
+         dir('environments/terraform/b2c-challenge/launch')
         	steps{
         		sh 'ls'
                 sh 'terraform -version'
