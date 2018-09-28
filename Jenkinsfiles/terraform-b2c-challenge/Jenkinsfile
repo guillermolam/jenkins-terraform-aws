@@ -43,7 +43,7 @@ pipeline {
         	steps{
                  dir('environments/terraform/b2c-challenge/launch'){
                      
-                    sh 'terraform plan -out "out.terraform"+ \
+                    sh 'terraform plan -out "out.tfplan"+ \
                     -var "access_key=$AWS_ACCESS_KEY_ID" \
                     -var "secret_key=$AWS_SECRET_ACCESS_KEY" \
                     -var "eks_endpoint=https://DE7FBA3995355F0228B7C020565A6A1F.sk1.us-east-1.eks.amazonaws.com" \
@@ -61,7 +61,7 @@ pipeline {
                 dir('environments/terraform/b2c-challenge/launch'){
                     sh 'ls'
                     sh 'rm -rf uploadFiles && mkdir uploadFiles'
-                    sh 'cp out.terraform uploadFiles/${BUILD_NUMBER}-out.terraform'
+                    sh 'cp out.tfplan uploadFiles/${BUILD_NUMBER}-out.tfplan'
                     withAWS(region:'us-east-1',credentials:'terraform-aws'){
                         s3Upload(bucket:"mapfre-terraform", workingDir:'uploadFiles', includePathPattern:'**/*',path:'terraformplans/');
                     }
