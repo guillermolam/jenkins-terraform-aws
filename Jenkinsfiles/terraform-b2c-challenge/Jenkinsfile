@@ -60,7 +60,7 @@ pipeline {
         	steps{
                 sh 'mkdir uploadfiles'
                 dir('environments/terraform/b2c-challenge/launch'){
-                    sh 'echo out.terraform >> /uploadfiles/out.terraform.$(date +"%m-%d-%y-%r")'
+                    sh 'echo out.terraform >> uploadfiles/out.terraform.$(date +"%m-%d-%y-%r")'
                     withAWS(region:'us-east-1',credentials:'terraform-aws'){
                         s3Upload(bucket:"mapfre-terraform", workingDir:'uploadfiles', includePathPattern:'**/*',path:'/terraformplans');
                     }
