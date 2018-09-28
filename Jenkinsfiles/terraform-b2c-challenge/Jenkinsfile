@@ -58,9 +58,9 @@ pipeline {
         }
         stage('upload plan to S3'){
         	steps{
-                sh 'rm -rf uploadfiles && mkdir uploadfiles/{JOB_NAME}_${BUILD_NUMBER}-out.terraform'
+                sh 'rm -rf uploadfiles && mkdir uploadfiles/${JOB_NAME}_${BUILD_NUMBER}-out.terraform'
                 dir('environments/terraform/b2c-challenge/launch'){
-                    sh 'echo out.terraform >> uploadfiles/{JOB_NAME}_${BUILD_NUMBER}-out.terraform'
+                    sh 'echo out.terraform >> uploadfiles/${JOB_NAME}_${BUILD_NUMBER}-out.terraform'
                     withAWS(region:'us-east-1',credentials:'terraform-aws'){
                         s3Upload(bucket:"mapfre-terraform", workingDir:'uploadfiles', includePathPattern:'**/*',path:'/terraformplans');
                     }
