@@ -1,12 +1,13 @@
 pipeline {
-//    environment {
-//               TERRAFORM_ACCESS_KEY_CREDS = credentials('aws_terraform_access_key')
-//               TERRAFORM_SECRET_ACCESS_KEY_CREDS = credentials('terraform_secret_access_key')
-//            }
+    environment {
+        TERRAFORM_ACCESS_KEY_CREDS = credentials('aws_terraform_access_key')
+        AWS_ACCESS_KEY_ID = "${env.TERRAFORM_ACCESS_KEY_CREDS_PSW}"
+        TERRAFORM_SECRET_ACCESS_KEY_CREDS = credentials('terraform_secret_access_key')
+        AWS_SECRET_ACCESS_KEY = "${env.TERRAFORM_SECRET_ACCESS_KEY_CREDS_PSW}"
+    }
     agent {
         docker { 
             image 'mdv-docdevl01:18444/terraform:0.11.8'
-//            args '-e AWS_ACCESS_KEY_ID=${TERRAFORM_ACCESS_KEY_CREDS_PSW} -e AWS_SECRET_ACCESS_KEY=${TERRAFORM_SECRET_ACCESS_KEY_CREDS_PSW} -e AWS_DEFAULT_REGION=us-east-1'
         }
     }
    
@@ -21,22 +22,15 @@ pipeline {
                 sh 'rm -rf environments && git init && git clone https://$BITBUCKET_COMMON_CREDS_USR:$BITBUCKET_COMMON_CREDS_PSW@bitbucket.org/mapfre-usa-b2c/environments.git'   
             }
         }
+        //Terraform init to initialise the terraform state
         stage('init'){
-            environment {
-                TERRAFORM_ACCESS_KEY_CREDS = credentials('aws_terraform_access_key')
-                AWS_ACCESS_KEY_ID = "${env.TERRAFORM_ACCESS_KEY_CREDS_PSW}"
-                TERRAFORM_SECRET_ACCESS_KEY_CREDS = credentials('terraform_secret_access_key')
-                AWS_SECRET_ACCESS_KEY = "${env.TERRAFORM_SECRET_ACCESS_KEY_CREDS_PSW}"
-            }
         	steps{
                  dir('environments/terraform/b2c-challenge/launch'){
-                    sh 'echo $AWS_ACCESS_KEY_ID'
-                    sh 'echo $AWS_SECRET_ACCESS_KEY'
-                    sh 'echo $AWS_DEFAULT_REGION'
                     sh 'terraform init'            
                  }
         	}
         }
+        //Terraform get to retrieve all the modules necessary
         stage('get'){
         	steps{
                  dir('environments/terraform/b2c-challenge/launch'){
@@ -44,18 +38,31 @@ pipeline {
                  }
         	}
         }
+        //Terraform plan performs a dry run and shows what terraform is planning to create.
         stage('plan'){
-            environment {
-                TERRAFORM_ACCESS_KEY_CREDS = credentials('aws_terraform_access_key')
-                TERRAFORM_SECRET_ACCESS_KEY_CREDS = credentials('terraform_secret_access_key')
-            }
         	steps{
                  dir('environments/terraform/b2c-challenge/launch'){
-                    sh 'terraform plan -out "out.terraform" \
-                    -var "access_key=$TERRAFORM_ACCESS_KEY_CREDS_PSW" \
-                    -var "secret_key=$TERRAFORM_SECRET_ACCESS_KEY_CREDS_PSW" \
+                     
+                    sh 'terraform plan -out "out.terraform"+ \
+                    -var "access_key=$AWS_ACCESS_KEY_ID" \
+                    -var "secret_key=$AWS_SECRET_ACCESS_KEY" \
                     -var "eks_endpoint=https://DE7FBA3995355F0228B7C020565A6A1F.sk1.us-east-1.eks.amazonaws.com" \
                     -var-file=../input_variables.tf'
+                 }
+        	}
+        }
+        stage('QA Approval'){
+        	steps{
+        		input ('Are we good ?')
+        	}
+        }
+        stage('upload plan to S3'){
+        	steps{
+                 dir('environments/terraform/b2c-challenge/launch'){
+                    sh 'echo out.terraform >> /uploadfiles/out.terraform.$(date +"%m-%d-%y-%r")'
+                    withAWS(region:'us-east-1',credentials:'terraform-aws'){
+                        s3Upload(bucket:"mapfre-terraform", workingDir:'uploadfiles', includePathPattern:'**/*',path:'/terraformplans');
+                    }
                  }
         	}
         }	
