@@ -6,7 +6,7 @@ pipeline {
     agent {
         docker { 
             image 'mdv-docdevl01:18444/terraform:0.11.8'
-            args '-e AWS_ACCESS_KEY_ID=$TERRAFORM_ACCESS_KEY_CREDS_PSW -e AWS_SECRET_ACCESS_KEY=$TERRAFORM_SECRET_ACCESS_KEY_CREDS_PSW -e AWS_DEFAULT_REGION=us-east-1'
+            args '-e AWS_ACCESS_KEY_ID=${TERRAFORM_ACCESS_KEY_CREDS_PSW} -e AWS_SECRET_ACCESS_KEY=${TERRAFORM_SECRET_ACCESS_KEY_CREDS_PSW} -e AWS_DEFAULT_REGION=us-east-1'
         }
     }
    
