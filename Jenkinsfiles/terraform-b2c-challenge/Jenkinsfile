@@ -1,12 +1,12 @@
 pipeline {
-    environment {
-                TERRAFORM_ACCESS_KEY_CREDS = credentials('aws_terraform_access_key')
-                TERRAFORM_SECRET_ACCESS_KEY_CREDS = credentials('terraform_secret_access_key')
-            }
+//    environment {
+//               TERRAFORM_ACCESS_KEY_CREDS = credentials('aws_terraform_access_key')
+//               TERRAFORM_SECRET_ACCESS_KEY_CREDS = credentials('terraform_secret_access_key')
+//            }
     agent {
         docker { 
             image 'mdv-docdevl01:18444/terraform:0.11.8'
-            args '-e AWS_ACCESS_KEY_ID=${TERRAFORM_ACCESS_KEY_CREDS_PSW} -e AWS_SECRET_ACCESS_KEY=${TERRAFORM_SECRET_ACCESS_KEY_CREDS_PSW} -e AWS_DEFAULT_REGION=us-east-1'
+//            args '-e AWS_ACCESS_KEY_ID=${TERRAFORM_ACCESS_KEY_CREDS_PSW} -e AWS_SECRET_ACCESS_KEY=${TERRAFORM_SECRET_ACCESS_KEY_CREDS_PSW} -e AWS_DEFAULT_REGION=us-east-1'
         }
     }
    
@@ -28,12 +28,13 @@ pipeline {
             }
         	steps{
                  dir('environments/terraform/b2c-challenge/launch'){
-                    sh 'echo $TERRAFORM_ACCESS_KEY_CREDS_PSW'
-                    sh 'echo $TERRAFORM_SECRET_ACCESS_KEY_CREDS_PSW'
-                    sh 'echo $AWS_ACCESS_KEY_ID'
-                    sh 'echo $AWS_SECRET_ACCESS_KEY'
-                    sh 'echo $AWS_DEFAULT_REGION'
-                    sh 'terraform init'
+                     withEnv(['AWS_ACCESS_KEY_ID=$TERRAFORM_ACCESS_KEY_CREDS_PSW',
+                     'AWS_SECRET_ACCESS_KEY=TERRAFORM_SECRET_ACCESS_KEY_CREDS_PSW']){
+                        sh 'echo $AWS_ACCESS_KEY_ID'
+                        sh 'echo $AWS_SECRET_ACCESS_KEY'
+                        sh 'echo $AWS_DEFAULT_REGION'
+                        sh 'terraform init'
+                     }               
                  }
         	}
         }
