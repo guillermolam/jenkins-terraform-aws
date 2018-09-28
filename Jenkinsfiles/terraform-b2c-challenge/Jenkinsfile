@@ -28,6 +28,8 @@ pipeline {
             }
         	steps{
                  dir('environments/terraform/b2c-challenge/launch'){
+                    sh 'echo $TERRAFORM_ACCESS_KEY_CREDS_PSW'
+                    sh 'echo $TERRAFORM_SECRET_ACCESS_KEY_CREDS_PSW'
                     sh 'echo $AWS_ACCESS_KEY_ID'
                     sh 'echo $AWS_SECRET_ACCESS_KEY'
                     sh 'echo $AWS_DEFAULT_REGION'
