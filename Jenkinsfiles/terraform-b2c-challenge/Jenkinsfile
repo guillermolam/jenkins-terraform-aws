@@ -63,7 +63,7 @@ pipeline {
                     sh 'rm -rf uploadFiles && mkdir uploadFiles'
                     sh 'cp out.terraform uploadFiles/${BUILD_NUMBER}-out.terraform'
                     withAWS(region:'us-east-1',credentials:'terraform-aws'){
-                        s3Upload(bucket:"mapfre-terraform", workingDir:'uploadFiles', includePathPattern:'**/*',path:'terraformplans');
+                        s3Upload(bucket:"mapfre-terraform", workingDir:'uploadFiles', includePathPattern:'**/*',path:'terraformplans/');
                     }
                 }
         	}
