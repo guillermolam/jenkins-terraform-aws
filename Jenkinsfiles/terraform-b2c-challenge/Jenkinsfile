@@ -26,6 +26,9 @@ pipeline {
                     sh 'export REGION=us-east-1'
                     sh 'echo $AWS_ACCESS_KEY_ID'
                     sh 'echo $AWS_SECRET_ACCESS_KEY'
+                    sh 'env | grep AWS_ACCESS_KEY_ID'
+                    sh 'echo export AWS_ACCESS_KEY_ID=$TERRAFORM_ACCESS_KEY_CREDS_PSW >>/.bashrc'
+                    sh 'env | grep AWS_ACCESS_KEY_ID'
                     sh 'terraform init'
                  }
         	}
