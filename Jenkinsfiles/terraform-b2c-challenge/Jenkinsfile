@@ -58,7 +58,7 @@ pipeline {
         }
         stage('upload plan to S3'){
         	steps{
-                sh 'mkdir uploadfiles'
+                sh 'rm -rf uploadfiles && mkdir uploadfiles'
                 dir('environments/terraform/b2c-challenge/launch'){
                     sh 'echo out.terraform >> uploadfiles/out.terraform.$(date +"%m-%d-%y-%r")'
                     withAWS(region:'us-east-1',credentials:'terraform-aws'){
