@@ -27,7 +27,7 @@ pipeline {
                     sh 'echo $AWS_ACCESS_KEY_ID'
                     sh 'echo $AWS_SECRET_ACCESS_KEY'
                     sh 'echo export AWS_ACCESS_KEY_ID=$TERRAFORM_ACCESS_KEY_CREDS_PSW >>/.bashrc'
-                    sh 'echo $AWS_SECRET_ACCESS_KEY'
+                    sh 'echo $AWS_ACCESS_KEY_ID'
                     sh 'terraform init'
                  }
         	}
