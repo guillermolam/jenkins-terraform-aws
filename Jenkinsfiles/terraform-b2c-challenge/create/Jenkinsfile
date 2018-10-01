@@ -67,7 +67,14 @@ pipeline {
                     }
                 }
         	}
-        }	
+        }
+        stage('apply'){
+        	steps{
+                dir('environments/terraform/b2c-challenge/launch'){
+                   sh 'terraform apply out.terraform'
+                }
+        	}
+        }
     }
 }
 
