@@ -47,7 +47,7 @@ pipeline {
         stage('destroy'){
         	steps{
                 dir('environments/terraform/b2c-challenge/launch'){
-                        sh 'terraform destroy \
+                        sh 'terraform destroy -auto-approve\
                     -var "access_key=$AWS_ACCESS_KEY_ID" \
                     -var "secret_key=$AWS_SECRET_ACCESS_KEY" \
                     -var "eks_endpoint=https://DE7FBA3995355F0228B7C020565A6A1F.sk1.us-east-1.eks.amazonaws.com" \
