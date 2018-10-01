@@ -1,0 +1,61 @@
+pipeline {
+    environment {
+        TERRAFORM_ACCESS_KEY_CREDS = credentials('aws_terraform_access_key')
+        AWS_ACCESS_KEY_ID = "${env.TERRAFORM_ACCESS_KEY_CREDS_PSW}"
+        TERRAFORM_SECRET_ACCESS_KEY_CREDS = credentials('terraform_secret_access_key')
+        AWS_SECRET_ACCESS_KEY = "${env.TERRAFORM_SECRET_ACCESS_KEY_CREDS_PSW}"
+    }
+    agent {
+        docker { 
+            image 'mdv-docdevl01:18444/terraform:0.11.8'
+        }
+    }
+   
+    stages {
+        // cloning code into the container
+        stage('clone'){
+         environment {
+                BITBUCKET_COMMON_CREDS = credentials('anj-bitbucket')
+            }
+            //removing old code if there is any, initializing new local repo and cloning into it.
+            steps{
+                sh 'rm -rf environments && git init && git clone https://$BITBUCKET_COMMON_CREDS_USR:$BITBUCKET_COMMON_CREDS_PSW@bitbucket.org/mapfre-usa-b2c/environments.git'   
+            }
+        }
+        //Terraform init to initialise the terraform state
+        stage('init'){
+        	steps{
+                 dir('environments/terraform/b2c-challenge/launch'){
+                    sh 'terraform init'            
+                 }
+        	}
+        }
+        //Terraform get to retrieve all the modules necessary
+        stage('get'){
+        	steps{
+                 dir('environments/terraform/b2c-challenge/launch'){
+                    sh 'terraform get'
+                 }
+        	}
+        }
+
+        stage('Is this Approved'){
+        	steps{
+        		input ('Are we good ?')
+        	}
+        }
+        stage('destroy'){
+        	steps{
+                dir('environments/terraform/b2c-challenge/launch'){
+                        sh 'terraform destroy \
+                    -var "access_key=$AWS_ACCESS_KEY_ID" \
+                    -var "secret_key=$AWS_SECRET_ACCESS_KEY" \
+                    -var "eks_endpoint=https://DE7FBA3995355F0228B7C020565A6A1F.sk1.us-east-1.eks.amazonaws.com" \
+                    -var-file=../input_variables.tf'
+                    }
+                }
+        	}
+        }	
+    }
+}
+
